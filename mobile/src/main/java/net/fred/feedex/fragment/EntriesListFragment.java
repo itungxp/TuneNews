@@ -19,17 +19,17 @@
 
 package net.fred.feedex.fragment;
 
-import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.SearchView;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
@@ -155,6 +155,15 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
 
             mEntriesCursorAdapter = new EntriesCursorAdapter(getActivity(), mUri, Constants.EMPTY_CURSOR, mShowFeedInfo);
         }
+
+        Integer feedId = getArguments().getInt(Constants.FEED_ID, -1);
+        if(feedId >= 0){
+            mListDisplayDate = new Date().getTime();
+            mShowFeedInfo = true;
+            mUri = EntryColumns.ENTRIES_FOR_FEED_CONTENT_URI(feedId);
+            mEntriesCursorAdapter = new EntriesCursorAdapter(getActivity(), mUri, Constants.EMPTY_CURSOR, mShowFeedInfo);
+            setListAdapter(mEntriesCursorAdapter);
+        }
     }
 
     @Override
@@ -185,7 +194,7 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
 
         mListView = (ListView) rootView.findViewById(android.R.id.list);
         mListView.setFastScrollEnabled(true);
-        mListView.setOnTouchListener(new SwipeGestureListener(mListView.getContext()));
+//        mListView.setOnTouchListener(new SwipeGestureListener(mListView.getContext()));
 
         if (PrefUtils.getBoolean(PrefUtils.DISPLAY_TIP, true)) {
             final TextView header = new TextView(mListView.getContext());
@@ -404,8 +413,14 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
         }
 
         if (mNewEntriesNumber > 0) {
-            mRefreshListBtn.setText(getResources().getQuantityString(R.plurals.number_of_new_entries, mNewEntriesNumber, mNewEntriesNumber));
-            mRefreshListBtn.setVisibility(View.VISIBLE);
+//            mRefreshListBtn.setText(getResources().getQuantityString(R.plurals.number_of_new_entries, mNewEntriesNumber, mNewEntriesNumber));
+//            mRefreshListBtn.setVisibility(View.VISIBLE);
+            mNewEntriesNumber = 0;
+            mListDisplayDate = new Date().getTime();
+            refreshUI();
+            if (mUri != null) {
+                restartLoaders();
+            }
         } else {
             mRefreshListBtn.setVisibility(View.GONE);
         }

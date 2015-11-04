@@ -38,5 +38,8 @@ public class MainApplication extends Application {
         mContext = getApplicationContext();
 
         PrefUtils.putBoolean(PrefUtils.IS_REFRESHING, false); // init
+        PrefUtils.putBoolean(PrefUtils.DISPLAY_IMAGES, false); // for develop purpose
+        PrefUtils.putBoolean(PrefUtils.REFRESH_ON_OPEN_ENABLED, false); // for develop purpose
+        PrefUtils.putBoolean(PrefUtils.REFRESH_ENABLED, false); // for develop purpose
     }
 }

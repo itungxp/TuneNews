@@ -118,6 +118,8 @@ public class EntryView extends WebView {
     private static final String LINK_BUTTON_MIDDLE = "'>";
     private static final String LINK_BUTTON_END = "</a></p>";
     private static final String IMAGE_ENCLOSURE = "[@]image/";
+    private static final String SCRIPT_START = "<script type='text/javascript'>";
+    private static final String SCRIPT_END = "</script>";
 
     private final JavaScriptObject mInjectedJSObject = new JavaScriptObject();
     private EntryViewManager mEntryViewMgr;
@@ -182,8 +184,9 @@ public class EntryView extends WebView {
             dateStringBuilder.append(" &mdash; ").append(author);
         }
 
-        content.append(dateStringBuilder).append(SUBTITLE_END).append(contentText).append(BUTTON_SECTION_START).append(BUTTON_START);
-
+        content.append(dateStringBuilder).append(SUBTITLE_END).append(contentText);
+        if (!preferFullText) content.append(SCRIPT_START + "injectedJSObject.onClickFullText();" + SCRIPT_END);
+        /*content.append(BUTTON_SECTION_START).append(BUTTON_START);
         if (!preferFullText) {
             content.append(context.getString(R.string.get_full_text)).append(BUTTON_MIDDLE).append("injectedJSObject.onClickFullText();");
         } else {
@@ -200,7 +203,9 @@ public class EntryView extends WebView {
             content.append(LINK_BUTTON_START).append(link).append(LINK_BUTTON_MIDDLE).append(context.getString(R.string.see_link)).append(LINK_BUTTON_END);
         }
 
-        content.append(BUTTON_SECTION_END).append(BODY_END);
+        content.append(BUTTON_SECTION_END);*/
+        
+        content.append(BODY_END);
 
         return content.toString();
     }

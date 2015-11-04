@@ -58,25 +58,32 @@ public class ArticleTextExtractor {
         // now remove the clutter
         prepareDocument(doc);
 
-        // init elements
-        Collection<Element> nodes = getNodes(doc);
-        int maxWeight = 0;
         Element bestMatchElement = null;
-
-        for (Element entry : nodes) {
-            int currentWeight = getWeight(entry, contentIndicator);
-            if (currentWeight > maxWeight) {
-                maxWeight = currentWeight;
-                bestMatchElement = entry;
-
-                if (maxWeight > 300) {
-                    break;
-                }
+        if(contentIndicator != null){
+            for(String cssIndicator : contentIndicator.split(",")){
+                bestMatchElement = doc.select(cssIndicator).first();
+                if(bestMatchElement != null) return bestMatchElement.html();
             }
         }
+        else {
+            // init elements
+            Collection<Element> nodes = getNodes(doc);
+            int maxWeight = 0;
 
-        if (bestMatchElement != null) {
-            return bestMatchElement.toString();
+            for (Element entry : nodes) {
+                int currentWeight = getWeight(entry, contentIndicator);
+                if (currentWeight > maxWeight) {
+                    maxWeight = currentWeight;
+                    bestMatchElement = entry;
+
+                    if (maxWeight > 300) {
+                        break;
+                    }
+                }
+            }
+            if (bestMatchElement != null) {
+                return bestMatchElement.html();
+            }
         }
 
         return null;

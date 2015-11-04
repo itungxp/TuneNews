@@ -19,10 +19,10 @@
 
 package net.fred.feedex.activity;
 
-import android.app.AlertDialog;
 import android.app.LoaderManager;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.CursorLoader;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
@@ -34,6 +34,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
@@ -48,7 +49,9 @@ import com.melnykov.fab.FloatingActionButton;
 import net.fred.feedex.Constants;
 import net.fred.feedex.R;
 import net.fred.feedex.adapter.DrawerAdapter;
+import net.fred.feedex.common.Feeds;
 import net.fred.feedex.fragment.EntriesListFragment;
+import net.fred.feedex.fragment.FeedsFragment;
 import net.fred.feedex.provider.FeedData;
 import net.fred.feedex.provider.FeedData.EntryColumns;
 import net.fred.feedex.provider.FeedData.FeedColumns;
@@ -76,6 +79,8 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
     private EntriesListFragment mEntriesFragment;
     private DrawerLayout mDrawerLayout;
     private View mLeftDrawer;
+    private FeedsFragment mFeedsFragment;
+    private ViewPager mFeedsViewPager;
     private ListView mDrawerList;
     private DrawerAdapter mDrawerAdapter;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -105,7 +110,8 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         setContentView(R.layout.activity_home);
 
-        mEntriesFragment = (EntriesListFragment) getFragmentManager().findFragmentById(R.id.entries_list_fragment);
+        mFeedsFragment = (FeedsFragment) getSupportFragmentManager().findFragmentById(R.id.feeds_view_pager_fragment);
+        mFeedsViewPager = (ViewPager) findViewById(R.id.feedsViewPager);
 
         mTitle = getTitle();
 
@@ -211,7 +217,7 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         super.onNewIntent(intent);
 
         // We reset the current drawer position
-        selectDrawerItem(0);
+//        selectDrawerItem(0);
     }
 
     @Override
@@ -333,19 +339,25 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
                     showFeedInfo = false;
                 }
                 mTitle = mDrawerAdapter.getItemName(position);
+                mFeedsViewPager.setCurrentItem(position-2);
                 break;
         }
 
-        if (!newUri.equals(mEntriesFragment.getUri())) {
-            mEntriesFragment.setData(newUri, showFeedInfo);
-        }
+//        if (!newUri.equals(mEntriesFragment.getUri())) {
+//            mEntriesFragment.setData(newUri, showFeedInfo);
+//        }
 
         mDrawerList.setItemChecked(position, true);
 
         // First open => we open the drawer for you
         if (PrefUtils.getBoolean(PrefUtils.FIRST_OPEN, true)) {
             PrefUtils.putBoolean(PrefUtils.FIRST_OPEN, false);
-            if (mDrawerLayout != null) {
+            // Add defaulted news
+        	this.addNewFeed(Feeds.TinhTe.NAME,Feeds.TinhTe.URL,Feeds.TinhTe.CSS_INDICATOR);
+        	this.addNewFeed(Feeds.Kenh14.NAME,Feeds.Kenh14.URL,Feeds.Kenh14.CSS_INDICATOR);
+        	this.addNewFeed(Feeds.VNExpress.NAME,Feeds.VNExpress.URL,Feeds.VNExpress.CSS_INDICATOR);
+        	
+            /*if (mDrawerLayout != null) {
                 mDrawerLayout.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -365,7 +377,7 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
                             }
                         }
                     });
-            builder.show();
+            builder.show();*/
         }
 
         // Set title & icon
@@ -394,5 +406,36 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         // Put the good menu
         invalidateOptionsMenu();
+    }
+    
+    public void addNewFeed(String name, String url, String contentIndicator){
+        ContentResolver cr = getContentResolver();
+
+        Cursor cursor = null;
+        try {
+            ContentValues values = new ContentValues();
+
+            if (!url.startsWith(Constants.HTTP_SCHEME) && !url.startsWith(Constants.HTTPS_SCHEME)) {
+                url = Constants.HTTP_SCHEME + url;
+            }
+            values.put(FeedColumns.URL, url);
+            values.put(FeedColumns.NAME, name.trim().length() > 0 ? name : null);
+            values.put(FeedColumns.RETRIEVE_FULLTEXT, 1);
+            values.put(FeedColumns.FETCH_MODE, 0);
+            values.put(FeedColumns.CONTENT_INDICATOR, contentIndicator);
+            values.putNull(FeedColumns.ERROR);
+
+            cursor = cr.query(FeedColumns.CONTENT_URI, FeedColumns.PROJECTION_ID, FeedColumns.URL + Constants.DB_ARG, new String[]{url}, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                cr.update(FeedColumns.CONTENT_URI, values, FeedColumns.URL + Constants.DB_ARG, new String[]{url});
+            } else {
+                cr.insert(FeedColumns.CONTENT_URI, values);
+            }
+        } catch (Exception ignored) {
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 }

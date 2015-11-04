@@ -63,7 +63,6 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.util.Xml;
 import android.widget.Toast;
-
 import net.fred.feedex.Constants;
 import net.fred.feedex.MainApplication;
 import net.fred.feedex.R;
@@ -298,20 +297,13 @@ public class FetcherService extends IntentService {
 
                     try {
                         String link = entryCursor.getString(linkPos);
-
-                        // Try to find a text indicator for better content extraction
-                        String contentIndicator = null;
-                        String text = entryCursor.getString(abstractHtmlPos);
-                        if (!TextUtils.isEmpty(text)) {
-                            text = Html.fromHtml(text).toString();
-                            if (text.length() > 60) {
-                                contentIndicator = text.substring(20, 40);
-                            }
-                        }
-
                         connection = NetworkUtils.setupConnection(link);
 
-                        String mobilizedHtml = ArticleTextExtractor.extractContent(connection.getInputStream(), contentIndicator);
+                        Cursor feedCursor = getContentResolver().query(FeedColumns.CONTENT_URI(entryCursor.getLong(entryCursor.getColumnIndex(EntryColumns.FEED_ID))), null, null, null, null);
+                        String contentIndicator = feedCursor.moveToFirst() ? feedCursor.getString(feedCursor.getColumnIndex(FeedColumns.CONTENT_INDICATOR)) : null;
+                        feedCursor.close();
+
+                        String mobilizedHtml = contentIndicator+"::"+ArticleTextExtractor.extractContent(connection.getInputStream(), contentIndicator);
 
                         if (mobilizedHtml != null) {
                             mobilizedHtml = HtmlUtils.improveHtmlContent(mobilizedHtml, NetworkUtils.getBaseUrl(link));

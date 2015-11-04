@@ -622,7 +622,7 @@ public class RssAtomParser extends DefaultHandler {
                         entriesId[i] = Long.valueOf(results[i].uri.getLastPathSegment());
                     }
 
-                    FetcherService.addEntriesToMobilize(entriesId);
+//                    FetcherService.addEntriesToMobilize(entriesId);
                 }
             }
         } catch (Exception e) {
