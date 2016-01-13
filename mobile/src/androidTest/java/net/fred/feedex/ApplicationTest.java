@@ -1,11 +1,11 @@
-package net.fred.feedex;
+package com.tune.news;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
-import net.fred.feedex.utils.ArticleTextExtractor;
-import net.fred.feedex.utils.HtmlUtils;
-import net.fred.feedex.utils.NetworkUtils;
+import com.tune.news.utils.ArticleTextExtractor;
+import com.tune.news.utils.HtmlUtils;
+import com.tune.news.utils.NetworkUtils;
 
 import java.net.HttpURLConnection;
 

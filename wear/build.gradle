@@ -6,7 +6,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId "net.fred.feedex"
+        applicationId "com.tune.news"
         minSdkVersion 21
         targetSdkVersion 21
         versionCode 55
