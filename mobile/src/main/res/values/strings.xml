@@ -40,8 +40,8 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="back_again_to_quit">Press back once more to exit</string>
-    <string name="leftdrawer_ad_unit_id">ca-app-pub-5326471241766080/9834289860</string>
-    <string name="viewpagers_ad_unit_id">ca-app-pub-5326471241766080/6333936663</string>
+    <string name="leftdrawer_ad_unit_id" translatable="false">ca-app-pub-5326471241766080/9834289860</string>
+    <string name="viewpagers_ad_unit_id" translatable="false">ca-app-pub-5326471241766080/6333936663</string>
 
     <!-- FEEDS -->
     <string name="feeds">Feeds</string>
